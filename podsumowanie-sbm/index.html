@@ -39,6 +39,43 @@
       padding:28px 20px 36px;
     }
 
+    .topActionBar{
+      display:flex;
+      justify-content:flex-start;
+      align-items:center;
+      margin:0 0 18px;
+    }
+
+    .backBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:0 18px;
+      border-radius:16px;
+      text-decoration:none;
+      font-size:15px;
+      font-weight:700;
+      color:#f4f7ff;
+      border:1px solid rgba(125,211,252,.22);
+      background:
+        linear-gradient(180deg, rgba(28,46,82,.95) 0%, rgba(13,25,47,.98) 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 10px 26px rgba(0,0,0,.22);
+      transition:all .18s ease;
+    }
+
+    .backBtn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(125,211,252,.42);
+      background:
+        linear-gradient(180deg, rgba(39,62,108,.98) 0%, rgba(16,31,58,.98) 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 14px 30px rgba(0,0,0,.30);
+    }
+
     .hero{
       display:flex;
       align-items:flex-end;
@@ -312,6 +349,13 @@
 
     @media (max-width: 760px){
       .wrap{padding:18px 14px 24px}
+      .topActionBar{
+        margin-bottom:14px;
+      }
+      .backBtn{
+        width:100%;
+        justify-content:center;
+      }
       .hero{
         padding:20px;
         flex-direction:column;
@@ -334,9 +378,13 @@
 <body>
   <div class="wrap">
 
+    <div class="topActionBar">
+      <a class="backBtn" href="https://mirpasz.ace-group.pl/">← Powrót do głównej</a>
+    </div>
+
     <section class="hero">
       <div class="hero-left">
-        <div class="eyebrow">Miprasz / archiwum PDF</div>
+        <div class="eyebrow">Mirpasz / archiwum PDF</div>
         <h1>Podsumowania SBM</h1>
         <p>
           Ostatnie publikacje w jednym miejscu. Najnowsze podsumowanie jest wyróżnione
@@ -377,7 +425,6 @@
 
   </div>
 
-  <!-- Tu ładujesz osobny plik z listą raportów -->
   <script src="./reports-data.js"></script>
 
   <script>
