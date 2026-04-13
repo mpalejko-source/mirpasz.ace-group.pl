@@ -518,7 +518,7 @@
       <h1 class="heroTitle">Controlling i Portfele - Mirpasz</h1>
 
       <div class="heroAside">
-        Panel controllingowy<br>dla Mirpasz
+        Panel controllingowy Mirpasz
       </div>
     </header>
 
@@ -567,7 +567,7 @@
             </div>
           </a>
 
-          <a class="card small reportCard" href="podsumowanie-sbm/index.html" data-source="podsumowanie-sbm/index.html">
+          <a class="card small reportCard" href="podsumowanie-sbm/index.html" data-reports-source="podsumowanie-sbm/reports-data.js">
             <div class="cardInner">
               <div class="content">
                 <div class="metaTop">
@@ -635,7 +635,7 @@
             </div>
           </a>
 
-          <a class="card small reportCard" href="podsumowanie-rsm/index.html" data-source="podsumowanie-rsm/index.html">
+          <a class="card small reportCard" href="podsumowanie-rsm/index.html" data-reports-source="podsumowanie-rsm/reports-data.js">
             <div class="cardInner">
               <div class="content">
                 <div class="metaTop">
@@ -668,7 +668,6 @@
         </div>
 
       </div>
-
 
     </main>
   </div>
@@ -771,23 +770,68 @@
       return null;
     }
 
+    function extractLatestDateFromReportsData(jsText){
+      if (!jsText) return null;
+
+      const match = jsText.match(/window\.REPORTS\s*=\s*(\[[\s\S]*?\]);?/);
+      if (!match || !match[1]) return null;
+
+      let reports;
+      try {
+        reports = new Function(`return ${match[1]};`)();
+      } catch (err) {
+        return null;
+      }
+
+      if (!Array.isArray(reports) || !reports.length) return null;
+
+      let latest = null;
+
+      for (const item of reports) {
+        if (!item || !item.published) continue;
+
+        const parsed = normalizeDate(item.published);
+        if (!parsed) continue;
+
+        if (!latest || parsed.iso > latest.iso) {
+          latest = parsed;
+        }
+      }
+
+      return latest;
+    }
+
+    async function fetchText(url){
+      const separator = url.includes('?') ? '&' : '?';
+      const response = await fetch(`${url}${separator}v=${Date.now()}`, {
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      return response.text();
+    }
+
     async function loadCardDate(card, todayISO){
-      const source = card.dataset.source;
+      const htmlSource = card.dataset.source;
+      const reportsSource = card.dataset.reportsSource;
       const badge = card.querySelector('.updateBadge');
       const dateSpan = card.querySelector('.reportDate');
 
-      if (!source || !badge || !dateSpan) return;
+      if (!badge || !dateSpan) return;
 
       try {
-        const separator = source.includes('?') ? '&' : '?';
-        const response = await fetch(`${source}${separator}v=${Date.now()}`, {
-          cache: 'no-store'
-        });
+        let parsed = null;
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const htmlText = await response.text();
-        const parsed = extractDateFromHtml(htmlText);
+        if (reportsSource) {
+          const jsText = await fetchText(reportsSource);
+          parsed = extractLatestDateFromReportsData(jsText);
+        } else if (htmlSource) {
+          const htmlText = await fetchText(htmlSource);
+          parsed = extractDateFromHtml(htmlText);
+        }
 
         badge.classList.remove('is-loading');
 
